@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Clinical Reports & Data Export - NeuroLens{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1 text-dark">
+      <i class="bi bi-file-earmark-text text-teal me-2" style="color: #0F766E;"></i>Clinical Reports & Data Export
+    </h3>
+    <p class="text-muted small mb-0">Generate auditable clinical reports and export MRI cohort datasets for analysis.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- CSV Export Card -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-header bg-white border-bottom p-3 d-flex align-items-center">
+        <i class="bi bi-file-earmark-spreadsheet text-teal fs-5 me-2" style="color: #0F766E;"></i>
+        <span class="fw-semibold text-dark">Cohort Dataset Export (CSV)</span>
+      </div>
+      <div class="card-body p-4 d-flex flex-column justify-content-between">
+        <div>
+          <p class="text-secondary small">
+            Export complete tabulated records of patients, MRI scans, AI prediction probabilities, and doctor clinical verification notes into a standard CSV format.
+          </p>
+          <form method="get" action="{% url 'reports:export_csv' %}">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Filter by Status</label>
+              <select name="status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="AUTO_ACCEPTED">Auto Accepted</option>
+                <option value="NEEDS_REVIEW">Needs Review</option>
+                <option value="REVIEWED">Reviewed</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-semibold text-muted">Filter by Predicted Pathology</label>
+              <select name="label" class="form-select form-select-sm">
+                <option value="">All Classes</option>
+                <option value="glioma">Glioma</option>
+                <option value="meningioma">Meningioma</option>
+                <option value="notumor">No Tumor</option>
+                <option value="pituitary">Pituitary</option>
+              </select>
+            </div>
+            <button type="submit" class="btn text-white w-100 fw-semibold" style="background-color: #0F766E;">
+              <i class="bi bi-download me-1"></i> Download Filtered CSV
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Individual Case Reports Info -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-header bg-white border-bottom p-3 d-flex align-items-center">
+        <i class="bi bi-file-earmark-pdf text-danger fs-5 me-2"></i>
+        <span class="fw-semibold text-dark">Individual Case Reports (PDF)</span>
+      </div>
+      <div class="card-body p-4 d-flex flex-column justify-content-between">
+        <div>
+          <p class="text-secondary small">
+            Individual PDF clinical dossiers are available directly on each scan's detail page. Reports include:
+          </p>
+          <ul class="text-secondary small ps-3 mb-4">
+            <li>Complete patient demographic identification</li>
+            <li>High-resolution Brain MRI cross-sectional imagery</li>
+            <li>Grad-CAM visual explainability heatmap overlay</li>
+            <li>Model architecture & multiclass softmax distribution</li>
+            <li>Board-certified physician sign-off & clinical rationale</li>
+            <li>Institutional medical disclaimer</li>
+          </ul>
+        </div>
+        <div>
+          <a href="{% url 'scans:dashboard' %}" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-search me-1"></i> Browse Scans from Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

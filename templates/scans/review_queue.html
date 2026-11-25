@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Physician Review Queue - NeuroLens{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1 text-dark">
+      <i class="bi bi-clipboard-check text-warning me-2"></i>Physician Review Queue
+    </h3>
+    <p class="text-muted small mb-0">
+      MRI scans triaged for physician verification, prioritized by AI uncertainty (lowest confidence first).
+    </p>
+  </div>
+  <div>
+    <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+      <i class="bi bi-hourglass-split me-1"></i> {{ count }} Pending Review{% if count != 1 %}s{% endif %}
+    </span>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+    <span class="fw-semibold text-dark">Cases Requiring Clinical Sign-off</span>
+    <span class="text-muted small">Sorted by confidence ascending</span>
+  </div>
+
+  <div class="card-body p-0">
+    {% if predictions %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-muted small text-uppercase">
+            <tr>
+              <th class="ps-4">Scan</th>
+              <th>Patient</th>
+              <th>AI Suggestion</th>
+              <th>Confidence Level</th>
+              <th>Acquisition Date</th>
+              <th class="text-end pe-4">Clinical Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pred in predictions %}
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center">
+                    {% if pred.scan.image %}
+                      <img src="{{ pred.scan.image.url }}" alt="Scan thumbnail" class="rounded me-3 border" style="width: 48px; height: 48px; object-fit: cover;">
+                    {% else %}
+                      <div class="rounded me-3 bg-light border d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    {% endif %}
+                    <div>
+                      <div class="fw-bold text-dark">Scan #{{ pred.scan.id }}</div>
+                      <div class="text-muted small">{{ pred.model_name|upper }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <a href="{% url 'patients:detail' pk=pred.scan.patient.pk %}" class="fw-semibold text-primary text-decoration-none">
+                    {{ pred.scan.patient.full_name }}
+                  </a>
+                  <div class="text-muted small">Code: {{ pred.scan.patient.patient_code }}</div>
+                </td>
+                <td>
+                  <span class="fw-bold fs-6 text-dark">{{ pred.predicted_label|title }}</span>
+                  {% if pred.is_mock %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 0.65rem;">DEMO</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2" style="max-width: 160px;">
+                    {% widthratio pred.confidence 1 100 as pred_conf_pct %}
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                      <div class="progress-bar {% if pred.confidence < 0.6 %}bg-danger{% elif pred.confidence < 0.8 %}bg-warning{% else %}bg-success{% endif %}" style="width: {{ pred_conf_pct }}%;"></div>
+                    </div>
+                    <span class="fw-bold small {% if pred.confidence < 0.8 %}text-warning{% else %}text-success{% endif %}">
+                      {{ pred_conf_pct }}%
+                    </span>
+                  </div>
+                  <div class="text-muted" style="font-size: 0.7rem;">Below threshold (80%)</div>
+                </td>
+                <td class="text-secondary small">
+                  {{ pred.scan.uploaded_at|date:"M d, Y H:i" }}
+                </td>
+                <td class="text-end pe-4">
+                  <a href="{% url 'scans:review' pk=pred.pk %}" class="btn btn-sm btn-warning text-dark fw-semibold shadow-sm">
+                    <i class="bi bi-clipboard-check me-1"></i> Review Case
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="p-5 text-center text-muted">
+        <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
+        <h5 class="fw-bold text-dark">Review Queue is Clear!</h5>
+        <p class="text-muted small mb-0">All high-confidence scans have been triaged or manually reviewed by clinical staff.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

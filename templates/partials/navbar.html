@@ -1,0 +1,52 @@
+<nav class="navbar navbar-expand-lg top-navbar px-3">
+  <div class="container-fluid">
+    {% if user.is_authenticated %}
+    <button class="btn btn-sm btn-outline-light me-2 d-lg-none" type="button" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    {% endif %}
+
+    <a class="navbar-brand d-flex align-items-center me-4" href="{% url 'scans:dashboard' %}">
+      <span class="fs-4 me-2">🧠</span>
+      <span>Neuro<strong style="color: #99F6E4;">Lens</strong></span>
+      <span class="badge bg-dark bg-opacity-25 ms-2 text-white-50 fs-6 fw-normal d-none d-sm-inline-block">Clinical AI</span>
+    </a>
+
+    {% if user.is_authenticated %}
+    <div class="d-none d-md-block search-wrapper me-auto">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+        <input type="text" id="globalSearchInput" class="form-control border-start-0 ps-0" placeholder="Search patient name, ID, or scan..." autocomplete="off">
+      </div>
+      <div id="searchResultsDropdown" class="search-results-dropdown shadow"></div>
+    </div>
+    {% endif %}
+
+    <div class="ms-auto d-flex align-items-center">
+      {% if user.is_authenticated %}
+        <div class="d-flex align-items-center text-white me-3">
+          <div class="me-2 text-end d-none d-sm-block">
+            <div class="fw-semibold small leading-tight">{{ user.get_full_name|default:user.username }}</div>
+            <div class="text-white-50" style="font-size: 0.75rem;">
+              {% if user.profile.is_admin %}
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Administrator</span>
+              {% else %}
+                <span class="badge bg-teal-subtle text-white border border-white-50">Dr. / Radiologist</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px; font-weight: 600;">
+            {{ user.username|make_list|first|upper }}
+          </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-light d-flex align-items-center" title="Sign Out">
+          <i class="bi bi-box-arrow-right me-1"></i> <span class="d-none d-sm-inline">Sign Out</span>
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-light text-primary fw-semibold">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Staff Login
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

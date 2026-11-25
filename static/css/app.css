@@ -1,0 +1,445 @@
+/* NeuroLens Clinical AI Suite - Main Stylesheet */
+
+:root {
+  --primary: #285E61;
+  --primary-dark: #214E52;
+  --primary-light: #E9F1F1;
+  --accent: #496A81;
+  --accent-light: #EAF0F4;
+  --bg: #F6F8FA;
+  --card-bg: #FFFFFF;
+  --text: #334155;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --sidebar-width: 250px;
+  --navbar-height: 60px;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-stage {
+  background-color: #F1F5F7;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(40, 94, 97, 0.1) 1px, transparent 1.4px),
+    radial-gradient(ellipse at 12% 50%, rgba(40, 94, 97, 0.08), transparent 30%),
+    radial-gradient(ellipse at 88% 50%, rgba(73, 106, 129, 0.08), transparent 30%);
+  background-size: 28px 28px, auto, auto;
+}
+
+/* Navbar */
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background-color: #1F2937 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 1030;
+}
+
+.top-navbar .navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  font-size: 1.25rem;
+  color: #FFFFFF !important;
+}
+
+.top-navbar .navbar-brand strong {
+  color: #BFD8D5 !important;
+}
+
+.top-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Keep existing inline accents aligned with the shared palette. */
+[style*="background-color: #0F766E"] {
+  background-color: var(--primary) !important;
+}
+
+[style^="color: #0F766E"],
+[style*="; color: #0F766E"] {
+  color: var(--primary) !important;
+}
+
+[style*="border-color: #0F766E"] {
+  border-color: var(--primary) !important;
+}
+
+[style*="border-left-color: #0369A1"] {
+  border-left-color: var(--accent) !important;
+}
+
+[style^="color: #0369A1"],
+[style*="; color: #0369A1"] {
+  color: var(--accent) !important;
+}
+
+[style*="background-color: #CCFBF1"] {
+  background-color: var(--primary-light) !important;
+}
+
+[style*="background-color: #E0F2FE"] {
+  background-color: var(--accent-light) !important;
+}
+
+[style*="linear-gradient(135deg, #0F766E"] {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) !important;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: #FFFFFF;
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: var(--navbar-height);
+  bottom: 0;
+  left: 0;
+  padding-top: 1rem;
+  z-index: 1020;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.02);
+}
+
+.sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: #475569;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.15rem;
+  margin-right: 0.75rem;
+  color: #64748B;
+  transition: color 0.2s;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #F1F5F9;
+  color: var(--primary);
+}
+
+.sidebar .nav-link:hover i {
+  color: var(--primary);
+}
+
+.sidebar .nav-link.active {
+  background-color: #F0FDFA;
+  color: var(--primary);
+  font-weight: 600;
+  border-left-color: var(--primary);
+}
+
+.sidebar .nav-link.active i {
+  color: var(--primary);
+}
+
+.sidebar-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  margin-left: auto;
+}
+
+/* Main Content Area */
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  padding-top: var(--navbar-height);
+}
+
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 1.75rem 2rem 3rem 2rem;
+  min-height: calc(100vh - var(--navbar-height) - 60px);
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.no-sidebar {
+  margin-left: 0 !important;
+}
+
+/* Stat Cards */
+.stat-card {
+  background-color: var(--card-bg);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card.card-primary {
+  border-left-color: var(--primary);
+}
+
+.stat-card.card-warning {
+  border-left-color: var(--warning);
+}
+
+.stat-card.card-success {
+  border-left-color: var(--success);
+}
+
+.stat-card .stat-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.stat-card .stat-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0;
+}
+
+/* Status Badges */
+.status-badge {
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.badge-accepted {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-review {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.badge-reviewed {
+  background-color: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.mock-badge {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Probability Bars */
+.prob-item {
+  margin-bottom: 0.75rem;
+}
+
+.prob-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.prob-bar-container {
+  height: 8px;
+  background-color: #E2E8F0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.prob-bar {
+  height: 100%;
+  border-radius: 4px;
+  background-color: var(--primary);
+  transition: width 0.6s ease;
+}
+
+.prob-bar.prob-bar-highlight {
+  background-color: var(--accent);
+}
+
+/* Scan & Heatmap Displays */
+.scan-image-box {
+  background-color: #0F172A;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+}
+
+.scan-image {
+  max-width: 100%;
+  max-height: 380px;
+  border-radius: 6px;
+  object-fit: contain;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.heatmap-placeholder {
+  background-color: #F8FAFC;
+  border: 2px dashed #CBD5E1;
+  border-radius: 8px;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Clinical Cards */
+.neuro-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.neuro-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.neuro-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background-color: #FAFAFA;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  font-weight: 600;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neuro-card-body {
+  padding: 1.25rem;
+}
+
+/* Search Dropdown in Navbar */
+.search-wrapper {
+  position: relative;
+  width: 320px;
+}
+
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  margin-top: 4px;
+  max-height: 340px;
+  overflow-y: auto;
+  z-index: 1050;
+  display: none;
+}
+
+.search-results-dropdown.show {
+  display: block;
+}
+
+.search-category-header {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #EDF2F7;
+}
+
+.search-item {
+  padding: 8px 12px;
+  display: block;
+  text-decoration: none;
+  color: #334155;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.15s ease;
+}
+
+.search-item:hover {
+  background-color: #F0FDFA;
+  color: var(--primary);
+}
+
+/* Footer */
+.site-footer {
+  background-color: #FFFFFF;
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 0;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1.25rem 1rem 2rem 1rem;
+  }
+
+  .search-wrapper {
+    width: 200px;
+  }
+}

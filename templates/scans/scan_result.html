@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan #{{ scan.id }} Result - NeuroLens{% endblock %}
+
+{% block content %}
+<!-- Top Header and Actions -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div class="d-flex align-items-center">
+    <a href="{% url 'patients:detail' pk=scan.patient.pk %}" class="btn btn-outline-secondary btn-sm me-3" title="Back to Patient">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h3 class="fw-bold mb-0 text-dark">Diagnostic Scan #{{ scan.id }}</h3>
+        {% if prediction %}
+          {% if prediction.status == 'AUTO_ACCEPTED' %}
+            <span class="status-badge badge-accepted"><i class="bi bi-check-circle"></i> Auto Accepted</span>
+          {% elif prediction.status == 'NEEDS_REVIEW' %}
+            <span class="status-badge badge-review"><i class="bi bi-clock-history"></i> Needs Review</span>
+          {% elif prediction.status == 'REVIEWED' %}
+            <span class="status-badge badge-reviewed"><i class="bi bi-check2-all"></i> Reviewed</span>
+          {% endif %}
+
+          {% if prediction.is_mock %}
+            <span class="mock-badge"><i class="bi bi-exclamation-triangle"></i> DEMO MODE</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <p class="text-muted small mb-0">
+        Patient: <strong>{{ scan.patient.full_name }}</strong> ({{ scan.patient.patient_code }}) &bull; Uploaded {{ scan.uploaded_at|date:"F d, Y at H:i" }}
+      </p>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a href="{% url 'reports:generate_pdf' scan_id=scan.id %}" target="_blank" class="btn btn-outline-danger fw-semibold shadow-sm">
+      <i class="bi bi-file-earmark-pdf me-1"></i> Clinical PDF Report
+    </a>
+    {% if prediction and prediction.status == 'NEEDS_REVIEW' %}
+      <a href="{% url 'scans:review' pk=prediction.pk %}" class="btn btn-warning fw-semibold shadow-sm text-dark">
+        <i class="bi bi-clipboard-check me-1"></i> Review & Sign Off
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Main Diagnostic Two-Column Grid -->
+<div class="row g-4 mb-4">
+  <!-- Left Column: Original MRI Scan -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <div class="fw-semibold text-dark">
+          <i class="bi bi-image text-teal me-2" style="color: #0F766E;"></i>Original Brain MRI Acquisition
+        </div>
+        <span class="badge bg-light text-muted border">T1/T2 Axial</span>
+      </div>
+      <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center bg-dark rounded-bottom-4">
+        {% if scan.image %}
+          <img src="{{ scan.image.url }}" alt="Brain MRI Scan" class="scan-image">
+        {% else %}
+          <div class="text-muted text-center py-5">
+            <i class="bi bi-image fs-1 mb-2"></i>
+            <div>Image not available</div>
+          </div>
+        {% endif %}
+      </div>
+      {% if scan.notes %}
+        <div class="card-footer bg-light border-top p-3 small text-secondary">
+          <strong>Acquisition Notes:</strong> {{ scan.notes }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Grad-CAM Explainability Heatmap -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <div class="fw-semibold text-dark">
+          <i class="bi bi-cpu text-accent me-2" style="color: #0369A1;"></i>Grad-CAM Attention Heatmap
+        </div>
+        <span class="badge bg-light text-primary border">Visual Explainability</span>
+      </div>
+      <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center bg-dark rounded-bottom-4">
+        {% if prediction and prediction.heatmap_image %}
+          <img src="{{ prediction.heatmap_image.url }}" alt="Grad-CAM Visualization" class="scan-image">
+        {% else %}
+          <div class="heatmap-placeholder w-100">
+            <i class="bi bi-eye-slash fs-1 text-muted mb-2"></i>
+            <h6 class="fw-semibold text-dark">Heatmap Unavailable</h6>
+            <p class="text-muted small mb-0">
+              {% if prediction and prediction.is_mock %}
+                This demo prediction was evaluated with simulated weights without gradient activation maps.
+              {% else %}
+                Grad-CAM activation layer is currently generating or not configured for this model.
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-light border-top p-3 small text-secondary">
+        <i class="bi bi-info-circle me-1 text-primary"></i>
+        Warmer colors (red/yellow) indicate salient neuroanatomical regions influencing the neural network prediction.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Prediction & Probabilities Card -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-dark">
+          <i class="bi bi-pie-chart text-teal me-2" style="color: #0F766E;"></i>AI Diagnostic Classification
+        </span>
+        <span class="text-muted small">Architecture: <strong>{{ prediction.model_name|default:"VGG16"|upper }}</strong></span>
+      </div>
+
+      <div class="card-body p-4">
+        {% if prediction %}
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-4 bg-teal-subtle border" style="background-color: #F0FDFA; border-color: #99F6E4 !important;">
+            <div>
+              <div class="text-uppercase small fw-bold text-teal" style="color: #0F766E;">Predicted Pathology</div>
+              <div class="display-6 fw-bold text-dark">{{ prediction.predicted_label|title }}</div>
+            </div>
+            <div class="text-end">
+              <div class="text-uppercase small fw-bold text-muted">Confidence</div>
+              {% widthratio prediction.confidence 1 100 as conf_pct %}
+              <div class="display-6 fw-bold {% if prediction.confidence >= 0.80 %}text-success{% else %}text-warning{% endif %}">
+                {{ conf_pct }}%
+              </div>
+            </div>
+          </div>
+
+          <!-- Probability Distributions -->
+          <h6 class="fw-bold text-secondary mb-3">Multiclass Softmax Distribution:</h6>
+          <div class="space-y-3">
+            {% for label, prob in sorted_probs %}
+              {% widthratio prob 1 100 as prob_pct %}
+              <div class="prob-item">
+                <div class="prob-header">
+                  <span class="fw-semibold text-dark">
+                    {% if label == prediction.predicted_label %}
+                      <i class="bi bi-arrow-right-circle-fill text-teal me-1" style="color: #0F766E;"></i>
+                    {% endif %}
+                    {{ label|title }}
+                  </span>
+                  <span class="fw-bold">{{ prob_pct }}%</span>
+                </div>
+                <div class="prob-bar-container">
+                  <div class="prob-bar {% if label == prediction.predicted_label %}prob-bar-highlight{% endif %}" style="width: {{ prob_pct }}%;"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No prediction record attached to this MRI scan.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Physician Review Card -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-dark">
+          <i class="bi bi-clipboard2-pulse text-primary me-2"></i>Human-in-the-Loop Review
+        </span>
+        {% if review %}
+          <span class="badge bg-success-subtle text-success border border-success-subtle">Completed</span>
+        {% else %}
+          <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Pending Review</span>
+        {% endif %}
+      </div>
+
+      <div class="card-body p-4 d-flex flex-column justify-content-between">
+        {% if review %}
+          <div>
+            <div class="mb-3">
+              <div class="text-muted small text-uppercase fw-bold">Reviewing Clinician</div>
+              <div class="fw-bold text-dark fs-6">Dr. {{ review.reviewer.get_full_name|default:review.reviewer.username }}</div>
+              <div class="text-muted small">{{ review.reviewed_at|date:"F d, Y at H:i" }}</div>
+            </div>
+
+            <div class="mb-3">
+              <div class="text-muted small text-uppercase fw-bold">Final Confirmed Diagnosis</div>
+              <div class="fw-bold fs-5 text-dark">{{ review.final_label|title }}</div>
+            </div>
+
+            <div class="mb-3">
+              <div class="text-muted small text-uppercase fw-bold">Concurrence With AI</div>
+              {% if review.agrees_with_ai %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                  <i class="bi bi-check-circle me-1"></i> Physician agrees with AI
+                </span>
+              {% else %}
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                  <i class="bi bi-arrow-repeat me-1"></i> Physician overrode AI prediction
+                </span>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <div class="text-muted small text-uppercase fw-bold">Clinical Notes</div>
+              <p class="text-secondary small bg-light p-3 rounded-3 border mb-0" style="white-space: pre-line;">
+                {{ review.clinical_notes|default:"No clinical notes specified." }}
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-top">
+            <a href="{% url 'scans:review' pk=prediction.pk %}" class="btn btn-outline-secondary btn-sm w-100">
+              <i class="bi bi-pencil me-1"></i> Update Clinical Review
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <div class="display-6 text-warning mb-2"><i class="bi bi-clipboard-check"></i></div>
+            <h6 class="fw-bold text-dark">Awaiting Physician Verification</h6>
+            <p class="text-muted small mb-4">
+              AI predictions are diagnostic suggestions. A board-certified physician must review and validate findings before inclusion into patient health records.
+            </p>
+            {% if prediction %}
+              <a href="{% url 'scans:review' pk=prediction.pk %}" class="btn btn-warning fw-semibold px-4 text-dark shadow-sm">
+                <i class="bi bi-check2-circle me-1"></i> Conduct Clinical Review
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

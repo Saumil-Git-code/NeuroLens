@@ -1,0 +1,20 @@
+{
+  "arch": "vgg16",
+  "img_size": 224,
+  "batch_size": 16,
+  "val_split": 0.15,
+  "seed": 42,
+  "freeze_epochs": 3,
+  "finetune_epochs": 8,
+  "lr_head": 0.001,
+  "lr_finetune": 2e-05,
+  "patience": 4,
+  "n_train": 4026,
+  "n_val": 711,
+  "duplicates_within_training": 568,
+  "train_test_leakage_removed": 486,
+  "best_val_accuracy": 0.9817158931082982,
+  "temperature": 1.8162977695465088,
+  "mixed_precision": true,
+  "device": "cuda"
+}

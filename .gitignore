@@ -1,0 +1,16 @@
+*.pyc
+__pycache__/
+.venv/
+venv/
+db.sqlite3
+media/
+staticfiles/
+ml/weights/*.pth
+ml/results/duplicates.txt
+demo_images/
+.env
+*.egg-info/
+dist/
+build/
+.DS_Store
+Thumbs.db

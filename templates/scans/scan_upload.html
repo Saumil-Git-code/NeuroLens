@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload MRI Scan - NeuroLens{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="d-flex align-items-center mb-4">
+      <a href="{% url 'scans:dashboard' %}" class="btn btn-outline-secondary btn-sm me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h3 class="fw-bold mb-0 text-dark">Upload Brain MRI Scan</h3>
+        <p class="text-muted small mb-0">Select a patient and provide the DICOM/MRI cross-sectional image for instant neural analysis.</p>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card-header bg-white border-bottom p-3 d-flex align-items-center">
+        <i class="bi bi-cloud-arrow-up text-teal fs-5 me-2" style="color: #0F766E;"></i>
+        <span class="fw-semibold text-dark">MRI Scan Acquisition Form</span>
+      </div>
+
+      <div class="card-body p-4">
+        <!-- Diagnostic Requirements Notice -->
+        <div class="alert alert-info py-2 px-3 small mb-4 d-flex align-items-center">
+          <i class="bi bi-info-circle-fill me-2 fs-5 text-primary"></i>
+          <div>
+            <strong>File Specifications:</strong> Supported formats include <strong>JPG, JPEG, PNG, BMP</strong>. Maximum file size is <strong>16MB</strong>. Standard axial or coronal T1ce/T2 contrast sequences yield optimal Grad-CAM interpretability.
+          </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="scanUploadForm" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-4">
+              {{ form.non_field_errors|join:", " }}
+            </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.patient.id_for_label }}" class="form-label fw-semibold text-secondary">
+              Select Patient <span class="text-danger">*</span>
+            </label>
+            {{ form.patient }}
+            {% if form.patient.errors %}
+              <div class="text-danger small mt-1">{{ form.patient.errors|first }}</div>
+            {% endif %}
+            <div class="form-text small">
+              Missing patient? <a href="{% url 'patients:create' %}" target="_blank">Register new patient record</a>.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label fw-semibold text-secondary">
+              Brain MRI Image File <span class="text-danger">*</span>
+            </label>
+            {{ form.image }}
+            {% if form.image.errors %}
+              <div class="text-danger small mt-1">{{ form.image.errors|first }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Image Preview Area -->
+          <div id="imagePreviewContainer" class="mb-3 d-none">
+            <label class="form-label fw-semibold text-secondary small">Selected Image Preview:</label>
+            <div class="p-2 bg-dark rounded text-center">
+              <img id="imagePreview" src="#" alt="Selected MRI Preview" style="max-height: 240px; max-width: 100%; object-fit: contain;">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold text-secondary">
+              Radiology Notes & Clinical Observations
+            </label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+              <div class="text-danger small mt-1">{{ form.notes.errors|first }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Loading Spinner during inference -->
+          <div id="uploadSpinner" class="d-none text-center my-3 p-3 bg-light rounded border">
+            <div class="spinner-border text-teal mb-2" role="status" style="color: #0F766E;">
+              <span class="visually-hidden">Analyzing MRI...</span>
+            </div>
+            <div class="fw-semibold text-dark">Analyzing Brain MRI with Deep Neural Network...</div>
+            <div class="text-muted small">Extracting features and generating Grad-CAM heatmaps. Please wait.</div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top" id="submitButtonGroup">
+            <a href="{% url 'scans:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn text-white px-4 fw-semibold" id="uploadSubmitBtn" style="background-color: #0F766E;">
+              <i class="bi bi-cpu me-1"></i> Upload & Run AI Analysis
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('scanImageInput');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const previewImg = document.getElementById('imagePreview');
+    const form = document.getElementById('scanUploadForm');
+    const spinner = document.getElementById('uploadSpinner');
+    const btnGroup = document.getElementById('submitButtonGroup');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewContainer.classList.remove('d-none');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewContainer.classList.add('d-none');
+          previewImg.src = '#';
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', function () {
+        if (form.checkValidity()) {
+          spinner.classList.remove('d-none');
+          btnGroup.classList.add('d-none');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+<aside id="mainSidebar" class="sidebar">
+  <div class="px-3 mb-3 text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+    Clinical Workflows
+  </div>
+
+  <nav class="nav flex-column mb-4">
+    <a href="{% url 'scans:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'scans' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'patients:list' %}" class="nav-link {% if request.resolver_match.app_name == 'patients' %}active{% endif %}">
+      <i class="bi bi-people"></i>
+      <span>Patients</span>
+    </a>
+
+    <a href="{% url 'scans:upload' %}" class="nav-link {% if request.resolver_match.app_name == 'scans' and request.resolver_match.url_name == 'upload' %}active{% endif %}">
+      <i class="bi bi-cloud-arrow-up"></i>
+      <span>Upload Scan</span>
+    </a>
+
+    <a href="{% url 'scans:review_queue' %}" class="nav-link {% if request.resolver_match.app_name == 'scans' and request.resolver_match.url_name == 'review_queue' %}active{% endif %}">
+      <i class="bi bi-clipboard-check"></i>
+      <span>Review Queue</span>
+      {% if pending_reviews_count > 0 %}
+        <span class="badge bg-warning text-dark sidebar-badge">{{ pending_reviews_count }}</span>
+      {% endif %}
+    </a>
+  </nav>
+
+  <div class="px-3 mb-3 text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+    Intelligence & Exports
+  </div>
+
+  <nav class="nav flex-column mb-4">
+    <a href="{% url 'analytics:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
+      <i class="bi bi-graph-up"></i>
+      <span>Analytics</span>
+    </a>
+
+    <a href="{% url 'reports:export_options' %}" class="nav-link {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Reports</span>
+    </a>
+  </nav>
+
+  {% if user.is_superuser or user.profile.is_admin %}
+  <div class="px-3 mb-3 text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+    Administration
+  </div>
+
+  <nav class="nav flex-column mb-4">
+    <a href="/admin/" target="_blank" class="nav-link">
+      <i class="bi bi-gear"></i>
+      <span>Admin Panel</span>
+      <i class="bi bi-box-arrow-up-right ms-auto small text-muted" style="font-size: 0.8rem;"></i>
+    </a>
+  </nav>
+  {% endif %}
+
+  <div class="mt-auto px-3 pb-3">
+    <div class="p-2 rounded bg-light border text-muted small text-center">
+      <i class="bi bi-shield-check text-success me-1"></i> NeuroLens AI v2.0
+    </div>
+  </div>
+</aside>
